@@ -1,17 +1,20 @@
 import ChartInputs from "./components/ChartInputs";
 import Chart from "./components/Chart";
-import { useState, useRef } from "react";
+import { useState, useRef, Fragment } from "react";
 import "./index.css";
 
 function App() {
   const [chartData, setChartData] = useState([]);
 
+  const svgRef = useRef(null);
+
   return (
-    <div>
-      <h3>Chart App</h3>
-      <ChartInputs onAdd={setChartData}></ChartInputs>
-      <Chart data={chartData}></Chart>
-    </div>
+    <Fragment>
+      <div className="container">
+        <Chart data={chartData} svgRef={svgRef}></Chart>
+        <ChartInputs onAction={setChartData} svgRef={svgRef}></ChartInputs>
+      </div>
+    </Fragment>
   );
 }
 

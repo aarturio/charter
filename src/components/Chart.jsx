@@ -1,19 +1,17 @@
 import * as d3 from "d3";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 
-const Chart = ({ data }) => {
+const Chart = ({ data, svgRef }) => {
   const draw = () => {
-    // var data = [2, 4, 8, 10];
-
-    var svg = d3.select("svg"),
-      width = svg.attr("width"),
-      height = svg.attr("height"),
-      radius = Math.min(width, height) / 2,
+    const svg = d3.select(svgRef.current), // select svg element
+      width = svg.attr("width"), // get width of svg element
+      height = svg.attr("height"), // get height of svg element
+      radius = Math.min(width, height) / 2, //calculate max radius
       g = svg
-        .append("g")
-        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+        .append("g") // append g element to svg
+        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")"); // place in the center
 
-    var color = d3.scaleOrdinal([
+    const color = d3.scaleOrdinal([
       "#4daf4a",
       "#377eb8",
       "#ff7f00",
@@ -22,63 +20,45 @@ const Chart = ({ data }) => {
     ]);
 
     // Generate the pie
-    var pie = d3.pie();
+    const pie = d3.pie();
 
     // Generate the arcs
-    var arc = d3.arc().innerRadius(0).outerRadius(radius);
+    const arc = d3.arc().innerRadius(0).outerRadius(radius);
 
-    //Generate groups
-    var arcs = g
+    // Generate groups
+    const arcs = g
       .selectAll("arc")
       .data(pie(data))
       .enter()
       .append("g")
       .attr("class", "arc");
 
-    //Draw arc paths
+    // Draw arc paths
     arcs
       .append("path")
       .attr("fill", function (d, i) {
         return color(i);
       })
-      .attr("d", arc);
+      .attr("d", arc)
+      .transition() // Add ease out
+      .duration(500)
+      .ease(d3.easeCubicOut)
+      .attrTween("d", function (d) {
+        let i = d3.interpolate(d.startAngle + 0.1, d.endAngle);
+        return function (t) {
+          d.endAngle = i(t);
+          return arc(d);
+        };
+      });
   };
 
   useEffect(() => {
     draw();
   }, [data]);
 
-  const svgRef = useRef(null);
-
-  function handleDownload() {
-    const svg = svgRef.current;
-    const serializer = new XMLSerializer();
-    const source = serializer.serializeToString(svg);
-    const image = new Image();
-
-    image.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = 300;
-      canvas.height = 300;
-      const context = canvas.getContext("2d");
-      context.drawImage(image, 0, 0);
-
-      const link = document.createElement("a");
-      link.download = "plot.png";
-      link.href = canvas.toDataURL();
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    };
-
-    image.src =
-      "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
-  }
-
   return (
     <div>
-      <svg ref={svgRef} width="300" height="300"></svg>
-      <button onClick={handleDownload}>Download</button>
+      <svg className="chart" ref={svgRef} width="300" height="300"></svg>
     </div>
   );
 };

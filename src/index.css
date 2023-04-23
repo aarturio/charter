@@ -1,0 +1,40 @@
+html {
+  font-size: 62.5%;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.header {
+  background-color: #999;
+  width: 100%;
+  height: 4rem;
+  padding: 1rem 1rem;
+  margin: 0 auto;
+  text-align: center;
+  font-size: 3rem;
+}
+
+.container {
+  width: 80%;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.chart {
+  display: block;
+  margin: 5rem auto;
+}
+
+.chart-input {
+  display: inline-block;
+}
+
+.btn-reset,
+.btn-download {
+  display: block;
+  margin: 2rem auto;
+}
