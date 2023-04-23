@@ -1,8 +1,8 @@
 import * as d3 from "d3";
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 
 const Chart = ({ data, svgRef }) => {
-  const draw = () => {
+  const draw = useCallback(() => {
     const svg = d3.select(svgRef.current), // select svg element
       width = svg.attr("width"), // get width of svg element
       height = svg.attr("height"), // get height of svg element
@@ -50,11 +50,11 @@ const Chart = ({ data, svgRef }) => {
           return arc(d);
         };
       });
-  };
+  }, [data, svgRef]);
 
   useEffect(() => {
     draw();
-  }, [data]);
+  }, [draw]);
 
   return (
     <div>
