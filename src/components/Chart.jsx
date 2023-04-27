@@ -2,14 +2,18 @@ import * as d3 from "d3";
 import { useEffect, useCallback } from "react";
 
 const Chart = ({ data, svgRef }) => {
+  console.log(data);
   const draw = useCallback(() => {
-    const svg = d3.select(svgRef.current), // select svg element
-      width = svg.attr("width"), // get width of svg element
-      height = svg.attr("height"), // get height of svg element
-      radius = Math.min(width, height) / 2, //calculate max radius
+    // select svg element
+    const svg = d3.select(svgRef.current).append("g");
+
+    // set chart dims
+    const width = 300, //svg.attr("width"), // get width of svg element
+      height = 300, // svg.attr("height"), // get height of svg element
+      radius = 150, //calculate max radius
       g = svg
         .append("g") // append g element to svg
-        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")"); // place in the center
+        .attr("transform", "translate(" + 450 / 2 + "," + 450 / 2 + ")"); // place in the center
 
     const color = d3.scaleOrdinal([
       "#4daf4a",
@@ -20,10 +24,17 @@ const Chart = ({ data, svgRef }) => {
     ]);
 
     // Generate the pie
-    const pie = d3.pie();
+    const pie = d3.pie().value(function (d) {
+      return d.submittedValue;
+    });
 
     // Generate the arcs
-    const arc = d3.arc().innerRadius(0).outerRadius(radius);
+    const arc = d3.arc().innerRadius(100).outerRadius(radius);
+
+    const label = d3
+      .arc()
+      .innerRadius(radius * 1.2)
+      .outerRadius(radius * 1.2);
 
     // Generate groups
     const arcs = g
@@ -36,10 +47,10 @@ const Chart = ({ data, svgRef }) => {
     // Draw arc paths
     arcs
       .append("path")
+      .attr("d", arc)
       .attr("fill", function (d, i) {
         return color(i);
       })
-      .attr("d", arc)
       .transition() // Add ease out
       .duration(500)
       .ease(d3.easeCubicOut)
@@ -50,6 +61,20 @@ const Chart = ({ data, svgRef }) => {
           return arc(d);
         };
       });
+
+    // Add labels
+    arcs
+      .append("text")
+      .attr("transform", function (d) {
+        return "translate(" + label.centroid(d) + ")";
+      })
+      .attr("font-size", "16")
+      .text(function (d) {
+        return d.data.submittedLabel;
+      });
+
+    // Remove labels that are not needed
+    arcs.exit().select("text").remove();
   }, [data, svgRef]);
 
   useEffect(() => {
@@ -58,7 +83,7 @@ const Chart = ({ data, svgRef }) => {
 
   return (
     <div>
-      <svg className="chart" ref={svgRef} width="300" height="300"></svg>
+      <svg className="chart" ref={svgRef} width="450" height="450"></svg>
     </div>
   );
 };

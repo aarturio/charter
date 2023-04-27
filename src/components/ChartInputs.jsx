@@ -1,18 +1,25 @@
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import * as d3 from "d3";
 
 const ChartInputs = ({ onAction, svgRef }) => {
+  const [enteredValue, setEnteredValue] = useState("");
+  const [enteredLabel, setEnteredLabel] = useState("");
+
   const handleAdd = (event) => {
     event.preventDefault();
+    d3.selectAll(".chart > *").remove();
     const formData = new FormData(event.target);
     const submittedValue = formData.get("submittedValue");
+    const submittedLabel = formData.get("submittedLabel");
     onAction((prevData) => {
-      return [...prevData, submittedValue];
+      return [...prevData, { submittedLabel, submittedValue }];
     });
+    setEnteredValue("");
+    setEnteredLabel("");
   };
 
   const handleReset = () => {
-    d3.selectAll("svg > *").remove();
+    d3.selectAll(".chart > *").remove();
     onAction(() => {
       return [];
     });
@@ -46,16 +53,33 @@ const ChartInputs = ({ onAction, svgRef }) => {
   return (
     <Fragment>
       <form className="chart-input" onSubmit={handleAdd}>
-        <input type="number" name="submittedValue"></input>
-        <button className="btn" type="submit">
+        <input
+          className="input-field"
+          type="number"
+          name="submittedValue"
+          placeholder="Enter numeric value"
+          // value={enteredValue}
+          onChange={(event) => setEnteredValue(event.target.value)}
+        ></input>
+        <br />
+        <input
+          className="input-field"
+          type="text"
+          name="submittedLabel"
+          placeholder="Add label"
+          // value={enteredLabel}
+          onChange={(event) => setEnteredLabel(event.target.value)}
+        ></input>
+        <br />
+        <button className="btn-add" type="submit">
           Add Data
         </button>
       </form>
-      <button className="btn-download" onClick={handleDownload}>
-        Download
-      </button>
       <button className="btn-reset" onClick={handleReset}>
         Reset
+      </button>
+      <button className="btn-download" onClick={handleDownload}>
+        Download
       </button>
     </Fragment>
   );
